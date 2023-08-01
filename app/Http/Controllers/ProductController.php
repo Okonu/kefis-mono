@@ -58,7 +58,7 @@ class ProductController extends Controller
      */
     public function dispatchProduct($product_id)
     {
-        dd('Dispatched');
+        // dd('Dispatched');
         $product = Product::findOrFail($product_id);
 
         StoreProduct::create([

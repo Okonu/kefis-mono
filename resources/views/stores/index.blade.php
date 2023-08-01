@@ -76,57 +76,63 @@
     <!-- End of Main Content -->
 
     <script>
-        async function fetchStoreProducts() {
-            try {
-                const response = await fetch("/store_products");
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error fetching store products:', error);
-                return [];
-            }
+    async function fetchStoreProducts() {
+        try {
+            const response = await fetch("/store_products");
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching store products:', error);
+            return [];
         }
+    }
 
-        async function reduceInventory(storeProduct_id, quantity) {
-            try {
-                const response = await fetch(`/store_products/${storeProduct_id}/reduce-inventory`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        quantity: quantity
-                    })
-                });
-                const data = await response.json();
-                console.log(data.message);
+    async function reduceInventory(storeProduct_id, quantity) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch(`/store_products/${storeProduct_id}/reduce-inventory`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    quantity: quantity
+                })
+            });
 
-                const storeProductsTable = document.getElementById('storeProductsTable').getElementsByTagName('tbody')[0];
-                const rowToUpdate = storeProductsTable.querySelector(`tr[data-product-id="${storeProduct_id}"]`);
-                rowToUpdate.cells[1].innerText = data.store_product.inventory;
-
-                if (data.fulfillment_details) {
-                    const fulfilledOrdersTable = document.getElementById('fulfilledOrdersTable').getElementsByTagName('tbody')[0];
-                    const newRow = fulfilledOrdersTable.insertRow();
-                    const productNameCell = newRow.insertCell();
-                    const quantityCell = newRow.insertCell();
-                    const orderNumberCell = newRow.insertCell();
-
-                    productNameCell.innerText = data.fulfillment_details.product_name;
-                    quantityCell.innerText = data.fulfillment_details.quantity;
-                    orderNumberCell.innerText = data.fulfillment_details.order_number;
-                }
-            } catch (error) {
-                console.error('Error reducing inventory:', error);
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
             }
+
+            const data = await response.json();
+            console.log(data.message);
+
+            const storeProductsTable = document.getElementById('storeProductsTable').getElementsByTagName('tbody')[0];
+            const rowToUpdate = storeProductsTable.querySelector(`tr[data-product-id="${storeProduct_id}"]`);
+            rowToUpdate.cells[1].innerText = data.store_product.inventory;
+
+            if (data.fulfillment_details) {
+                const fulfilledOrdersTable = document.getElementById('fulfilledOrdersTable').getElementsByTagName('tbody')[0];
+                const newRow = fulfilledOrdersTable.insertRow();
+                const productNameCell = newRow.insertCell();
+                const quantityCell = newRow.insertCell();
+                const orderNumberCell = newRow.insertCell();
+
+                productNameCell.innerText = data.fulfillment_details.product_name;
+                quantityCell.innerText = data.fulfillment_details.quantity;
+                orderNumberCell.innerText = data.fulfillment_details.order_number;
+            }
+        } catch (error) {
+            console.error('Error reducing inventory:', error);
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const storeProductsData = await fetchStoreProducts();
-            populateStoreProductsTable(storeProductsData);
+    document.addEventListener('DOMContentLoaded', async () => {
+        const storeProductsData = await fetchStoreProducts();
+        populateStoreProductsTable(storeProductsData);
 
-            // populateFulfilledOrdersTable({});
-
-        });
-    </script>
+        // populateFulfilledOrdersTable({});
+    });
+</script>
 @endsection

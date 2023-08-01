@@ -86,7 +86,13 @@ class StoreProductController extends Controller
         ]);
 
         $quantityToReduce = $request->input('quantity');
-        $storeProduct->inventory -= $quantityToReduce;
+
+        if ($storeProduct->inventory - $quantityToReduce < 10) {
+            $reorderQuantity = 50;
+            $storeProduct->inventory = max(10, $storeProduct->inventory - $quantityToReduce + $reorderQuantity);
+        } else {
+            $storeProduct->inventory -= $quantityToReduce;
+        }
 
         $fulfilledOrder = null;
         if ($storeProduct->inventory >= 10) {
@@ -97,9 +103,6 @@ class StoreProductController extends Controller
                 'order_number' => $orderNumber,
             ]);
         }
-
-        $reorderQuantity = 50;
-        $storeProduct->inventory = max(10, $storeProduct->inventory + $reorderQuantity);
 
         $storeProduct->save();
 

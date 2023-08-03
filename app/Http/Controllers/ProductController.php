@@ -89,11 +89,29 @@ class ProductController extends Controller
     }
 
     public function show(Request $request)
-    {
-        $products = Product::with('fulfilledOrders')->get();
+{
+    $products = Product::with('fulfilledOrders')->get();
 
-        $data = ['products' => $products];
+    $data = ['products' => []];
 
-        return response()->json($data);
+    foreach ($products as $product) {
+        $fulfilledStatus = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? 'Fulfilled' : 'Unfulfilled';
+        $orderNumber = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? $product->fulfilledOrders->first()->order_number : 'NA';
+        $dispatchButton = !$product->fulfilledOrders || $product->fulfilledOrders->count() === 0
+            ? '<button class="btn btn-success dispatch-button" data-product-id="'.$product->id.'">Dispatch</button>'
+            : '<button class="btn btn-success" disabled>Dispatch</button>';
+
+        $data['products'][] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'inventory' => $product->inventory,
+            'fulfilledStatus' => $fulfilledStatus,
+            'orderNumber' => $orderNumber,
+            'dispatchButton' => $dispatchButton,
+        ];
     }
+
+    return response()->json($data);
+}
+
 }

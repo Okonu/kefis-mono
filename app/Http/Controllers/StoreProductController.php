@@ -17,7 +17,8 @@ class StoreProductController extends Controller
 
         $fulfilledOrders = $this->getFulFilledOrders();
 
-        return view('stores.index', compact('storeProducts', 'fulfilledOrders'));
+        return response()->json(['storeProducts' => $storeProducts, 'fulfilledOrders' => $fulfilledOrders]);
+        // return view('stores.index', compact('storeProducts', 'fulfilledOrders'));
     }
 
     private function getFulFilledOrders()

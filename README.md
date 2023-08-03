@@ -11,62 +11,6 @@
 7. Run "php artisan key:generate" to generate the application key
 8. Run "php artisan serve" to start the application on your local machine.
 
-### Available endpoints;
-
-#### Here are the available endpoints along with their URLs and their supposed functionalities:
-
-- Endpoint: Get all products
-  
-    URL: /api/products
-    Method: GET
-    Functionality: Retrieves a list of all products with their fulfilled orders.
-
-- Endpoint: Get a specific product
-  
-    URL: /api/products/{product_id}
-    Method: GET
-    Functionality: Retrieves details of a specific product identified by its product_id.
-
-- Endpoint: Reduce inventory of a product
-  
-    URL: /api/products/{product_id}/reduce-inventory
-    Method: POST
-    Functionality: Reduces the inventory of a specific product identified by its product_id. This endpoint expects a JSON payload containing the quantity to be reduced from the product's inventory; 
-    Request body;
-```
-{
-  "quantity": 
-}
-```
-
-- Endpoint: Dispatch a product
-  
-    URL: /api/products/{product_id}/dispatch
-    Method: POST
-    Functionality: Dispatches a product identified by its product_id.
-
-- Endpoint: Reduce inventory of a store product
-  
-    URL: /api/store_products/{store_product}/reduce-inventory
-    Method: POST
-    Functionality: Reduces the inventory of a specific store product identified by its store_product. This endpoint expects a JSON payload containing the     quantity to be reduced from the store product's inventory.
-    Request body;
-    ```
-    {
-      "quantity": 
-    }
-
-- Endpoint: Get all store products
-  
-    URL: /api/store_products
-    Method: GET
-    Functionality: Retrieves a list of all store products with their details.
-
-- Endpoint: Get a list of processed orders
-  
-    URL: /api/processed_orders
-    Method: GET
-    Functionality: Retrieves a list of processed orders with product details.
 
 
 

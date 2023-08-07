@@ -20,6 +20,18 @@ class ProductController extends Controller
         return view('products.index', compact('products'));
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'inventory' => 'required|string',
+        ]);
+
+        Product::create($request->all());
+
+        return response()->json(['success' => true, 'message' => 'Product created successfully.']);
+    }
+
     /**
      * Reduce the inventory of a product.
      */
@@ -89,29 +101,54 @@ class ProductController extends Controller
     }
 
     public function show(Request $request)
-{
-    $products = Product::with('fulfilledOrders')->get();
+    {
+        $products = Product::with('fulfilledOrders')->get();
 
-    $data = ['products' => []];
+        $data = ['products' => []];
 
-    foreach ($products as $product) {
-        $fulfilledStatus = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? 'Fulfilled' : 'Unfulfilled';
-        $orderNumber = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? $product->fulfilledOrders->first()->order_number : 'NA';
-        $dispatchButton = !$product->fulfilledOrders || $product->fulfilledOrders->count() === 0
-            ? '<button class="btn btn-success dispatch-button" data-product-id="'.$product->id.'">Dispatch</button>'
-            : '<button class="btn btn-success" disabled>Dispatch</button>';
+        foreach ($products as $product) {
+            $fulfilledStatus = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? 'Fulfilled' : 'Unfulfilled';
+            $orderNumber = $product->fulfilledOrders && $product->fulfilledOrders->count() > 0 ? $product->fulfilledOrders->first()->order_number : 'NA';
+            $dispatchButton = !$product->fulfilledOrders || $product->fulfilledOrders->count() === 0
+                ? '<button class="btn btn-success dispatch-button" data-product-id="'.$product->id.'">Dispatch</button>'
+                : '<button class="btn btn-success" disabled>Dispatch</button>';
 
-        $data['products'][] = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'inventory' => $product->inventory,
-            'fulfilledStatus' => $fulfilledStatus,
-            'orderNumber' => $orderNumber,
-            'dispatchButton' => $dispatchButton,
-        ];
+            $data['products'][] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'inventory' => $product->inventory,
+                'fulfilledStatus' => $fulfilledStatus,
+                'orderNumber' => $orderNumber,
+                'dispatchButton' => $dispatchButton,
+            ];
+        }
+
+        return response()->json($data);
     }
 
-    return response()->json($data);
-}
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
 
+        $product->delete();
+
+        return response()->json(['success' => true, 'message' => 'Success product deleted successfully']);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required',
+            'inventory' => 'required',
+        ]);
+
+        $product->update([
+            'name' => $request->input('name'),
+            'inventory' => $request->input('inventory'),
+        ]);
+
+        return response()->json(['success' => true, 'product' => $product, 'message' => 'Successfully updated']);
+    }
 }

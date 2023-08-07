@@ -68,14 +68,19 @@ class StoreProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StoreProduct $storeProduct)
+    public function update(Request $request, $id)
     {
-        $this->validate($request, [
+        $storeProduct = StoreProduct::findOrFail($id);
+
+        $request->validate([
             'name' => 'required|string',
             'inventory' => 'required|integer|min:0',
         ]);
 
-        $storeProduct->update($request->all());
+        $storeProduct->update([
+            'name' => $request->input('name'),
+            'inventory' => $request->input('inventory'),
+        ]);
 
         return response()->json(['message' => 'Store product updated successfully', 'store_product' => $storeProduct]);
     }

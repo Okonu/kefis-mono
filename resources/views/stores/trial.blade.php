@@ -1,75 +1,37 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Begin Page Content -->
-    <div class="container-fluid">
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Store Inventory</h1>
+    <p class="mb-4">This is the inventory table for the Store products, has both Fulfilled Orders(sales made when the inventory is above 10) <br> and Unfulfilled orders(sales made when the inventory is below 10 products)<br>
+        When a sale is made and inventory is reduced below 10, the inventory is auto reordered and the table is autopopulated</p>
 
-        <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Store Inventory</h1>
-        <p class="mb-4">This is the inventory table for the Store products, has both Fulfilled Orders(sales made when the inventory is above 10) <br> and Unfulfilled orders(sales made when the inventory is below 10 products)<br>
-        When a sale is made and inventory is reduced below 10, the inventory is autoreorderd and table is autopopulated</p>
-
-        <!-- Add Product Button -->
-    <div class="mb-3">
-        <button class="btn btn-primary" id="addProductButton" data-bs-toggle="modal" data-bs-target="#addProductModal">Add Product</button>
-    </div>
-
-    <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
-        <!-- ... (modal content, addProductForm, and buttons) -->
-    </div>
-
-    <!-- Edit Product Modal -->
-    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-        <!-- ... (modal content, editProductForm, and buttons) -->
-    </div>
-
-        <!-- Store Products Table -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Store Products</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="storeProductsTable" class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Inventory</th>
-                                <th>Sale</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+    <!-- Store Products Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Store Products</h6>
+            <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addStoreProductModal">Add Product</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="storeProductsTable" class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Inventory</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Fulfilled Orders Table -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Fulfilled Orders</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="fulfilledOrdersTable" class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Quantity</th>
-                                <th>Order Number</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderData">
-                           
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    <!-- Add Store Product Modal -->
+<!-- Add Store Product Modal -->
 <div class="modal fade" id="addStoreProductModal" tabindex="-1" aria-labelledby="addStoreProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -97,18 +59,13 @@
     </div>
 </div>
 
-
-    </div>
-    <!-- /.container-fluid -->
-
-    </div>
-    <!-- End of Main Content -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const storeProductsTable = document.getElementById('storeProductsTable');
         const fulfilledOrdersTable = document.getElementById('fulfilledOrdersTable');
-        const addProductForm = document.getElementById('addProductForm');
-        const editProductForm = document.getElementById('editProductForm');
+        const addProductButton = document.getElementById('addProductButton');
+        const addStoreProductForm = document.getElementById('addStoreProductForm');
+        const addStoreProductModal = new bootstrap.Modal(document.getElementById('addStoreProductModal'));
 
         // Fetch and populate store products and fulfilled orders
         fetchData();

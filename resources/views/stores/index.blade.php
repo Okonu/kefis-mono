@@ -16,12 +16,12 @@
 
     <!-- Add Product Modal -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
-        <!-- ... (modal content, addProductForm, and buttons) -->
+
     </div>
 
     <!-- Edit Product Modal -->
     <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-        <!-- ... (modal content, editProductForm, and buttons) -->
+   
     </div>
 
         <!-- Store Products Table -->
@@ -110,7 +110,6 @@
         const addProductForm = document.getElementById('addProductForm');
         const editProductForm = document.getElementById('editProductForm');
 
-        // Fetch and populate store products and fulfilled orders
         fetchData();
 
         function fetchData() {
@@ -139,11 +138,10 @@
                 `;
             });
 
-            // Add event listeners for edit, delete, and sale buttons
-            const editButtons = document.querySelectorAll('.edit-button');
-            editButtons.forEach(button => {
-                button.addEventListener('click', handleEditButtonClick);
-            });
+            function handleEditButtonClick(event) {
+                const productID = event.target.getAttribute('data-product-id');
+                fetchEditData(productID);
+            }
 
             const deleteButtons = document.querySelectorAll('.delete-button');
             deleteButtons.forEach(button => {
@@ -156,22 +154,17 @@
             });
         }
 
-        // Handle Edit Button Click
         function handleEditButtonClick(event) {
             const productID = event.target.getAttribute('data-product-id');
-            // Fetch and handle edit data here
             console.log(`Edit product with ID: ${productID}`);
         }
 
-        // Handle Delete Button Click
         function handleDeleteButtonClick(event) {
             const productID = event.target.getAttribute('data-product-id');
-            // Delete product using productID
+            
             console.log(`Delete product with ID: ${productID}`);
-            fetchData(); // Refresh the table after successful deletion
-        }
+            fetchData(); 
 
-        // Handle Sale Button Click
         async function handleSaleButtonClick(event) {
             const productID = event.target.getAttribute('data-product-id');
             const quantity = 1; 
@@ -197,7 +190,6 @@
             }
         }
 
-        // Populate Fulfilled Orders Table
         function populateFulfilledOrdersTable(fulfilledOrders) {
             fulfilledOrdersTable.innerHTML = '';
 
@@ -211,7 +203,6 @@
             });
         }
 
-        // Add Product Button Click
         addProductButton.addEventListener('click', async () => {
             try {
                 const response = await fetch("{{ route('storeProducts') }}", {
@@ -231,7 +222,7 @@
 
                 addStoreProductForm.reset();
                 addStoreProductModal.hide();
-                fetchData(); // Refresh the table after successful addition
+                fetchData(); 
             } catch (error) {
                 console.error('Error adding product:', error);
             }

@@ -215,38 +215,37 @@
         }
 
         addProductForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
+            event.preventDefault();
 
-        const productName = document.getElementById('productName').value;
-        const productInventory = document.getElementById('productInventory').value;
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const productName = document.getElementById('productName').value;
+            const productInventory = document.getElementById('productInventory').value;
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        try {
-            const response = await fetch('/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                },
-                body: JSON.stringify({
-                    name: productName,
-                    inventory: productInventory,
-                }),
-            });
+            try {
+                const response = await fetch('/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: JSON.stringify({
+                        name: productName,
+                        inventory: productInventory,
+                    }),
+                });
 
-            const responseData = await response.json();
-            console.log('Server response:', responseData);
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
 
-
-            $('#addProductModal').modal('hide');
-        } catch (error) {
-            console.error('Error adding product:', error);
-        }
-    });
+                $('#addProductModal').modal('hide');
+            } catch (error) {
+                console.error('Error adding product:', error);
+            }
+        });
 
         function deleteProduct(productID) {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
+
             fetch(`/products/${productID}`, {
                 method: 'DELETE',
                 headers: {
@@ -264,29 +263,25 @@
             });
         }
 
-        async function handleEditFormSubmit(productID) {
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const formData = new FormData(editProductForm);
+        function handleDeleteButtonClick(event) {
+            const productID = event.currentTarget.getAttribute('data-product-id');
+            $(deleteProductModal).modal('show');
 
-            try {
-                const response = await fetch(`/products/${productID}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                    },
-                    body: formData,
-                });
-
-                const responseData = await response.json();
-                console.log('Response data:', responseData);
-
-                // updateProductsTable();
-                // $(editProductModal).modal('hide');
-            } catch (error) {
-                console.error('Error submitting form:', error);
+            function deleteProductHandler() {
+                deleteProduct(productID);
             }
+
+            confirmDeleteButton.removeEventListener('click', deleteProductHandler);
+            confirmDeleteButton.addEventListener('click', deleteProductHandler);
         }
 
+        function attachDeleteEventListeners() {
+            const deleteButtons = productsTable.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.removeEventListener('click', handleDeleteButtonClick);
+                button.addEventListener('click', handleDeleteButtonClick);
+            });
+        }
 
         function findProductByID(productID) {
             const products = productsTable.querySelectorAll('tbody tr');
@@ -313,6 +308,7 @@
             if (product) {
                 editNameInput.value = product.name;
                 editInventoryInput.value = product.inventory;
+                // Update the form action with the correct product ID
                 editProductForm.action = `/products/${productID}`;
                 editProductForm.removeEventListener('submit', handleEditFormSubmit);
                 editProductForm.addEventListener('submit', e => {
@@ -323,24 +319,28 @@
             }
         }
 
-        function handleDeleteButtonClick(event) {
-            const productID = event.currentTarget.getAttribute('data-product-id');
-            $(deleteProductModal).modal('show');
-            
-            function deleteProductHandler() {
-                deleteProduct(productID);
-            }
-            
-            confirmDeleteButton.removeEventListener('click', deleteProductHandler);
-            confirmDeleteButton.addEventListener('click', deleteProductHandler);
-        }
+        async function handleEditFormSubmit(productID) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const formData = new FormData(editProductForm);
 
-        function attachDeleteEventListeners() {
-            const deleteButtons = productsTable.querySelectorAll('.delete-button');
-            deleteButtons.forEach(button => {
-                button.removeEventListener('click', handleDeleteButtonClick);
-                button.addEventListener('click', handleDeleteButtonClick);
-            });
+            try {
+                const response = await fetch(`/products/${productID}`, {
+                    method: 'POST', // Use POST for updating
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: formData,
+                });
+
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
+
+                // Optionally, you can update the products table or perform other actions here
+
+                $(editProductModal).modal('hide');
+            } catch (error) {
+                console.error('Error editing product:', error);
+            }
         }
 
         successMessage.addEventListener('click', () => {
@@ -350,4 +350,5 @@
         updateProductsTable();
     });
 </script>
+
 @endsection

@@ -45,5 +45,6 @@ Route::get('store_products', [StoreProductController::class, 'index'])->name('st
 Route::delete('store_products/{store_product_id}', [StoreProductController::class, 'destroy']);
 Route::post('store_products/{store_product_id}', [StoreProductController::class, 'update']);
 Route::post('store_products', [StoreProductController::class, 'store'])->name('storeProducts');
+Route::get('store_products/{store_product}', [StoreProductController::class, 'show']);
 
 Route::get('processed_orders', [ProductController::class, 'processedOrders'])->name('processed-orders');

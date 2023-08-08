@@ -51,11 +51,11 @@ class StoreProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StoreProduct $storeProduct)
+    public function show($id)
     {
-        $storeProducts = StoreProduct::all();
+        $storeProduct = StoreProduct::findOrFail($id);
 
-        return response()->json($storeProducts);
+        return response()->json(['store_product' => $storeProduct]);
     }
 
     /**
@@ -123,10 +123,12 @@ class StoreProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StoreProduct $storeProduct)
+    public function destroy($id)
     {
+        $storeProduct = StoreProduct::findOrFail($id);
+
         $storeProduct->delete();
 
-        return response()->json(['message' => 'Store product deleted successfully']);
+        return response()->json(['success' => true, 'message' => 'Success product deleted successfully']);
     }
 }

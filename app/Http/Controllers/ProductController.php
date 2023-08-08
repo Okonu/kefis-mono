@@ -16,8 +16,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('fulfilledOrders')->get();
-
-        return view('products.index', compact('products'));
+        $product = Product::with('fulfilledOrders')->get();
+        return view('products.index', compact('products', 'product'));
     }
 
     public function store(Request $request)
@@ -149,6 +149,6 @@ class ProductController extends Controller
             'inventory' => $request->input('inventory'),
         ]);
 
-        return response()->json(['success' => true, 'product' => $product, 'message' => 'Successfully updated']);
+        return response()->json(['message' => 'Successfully updated']);
     }
 }

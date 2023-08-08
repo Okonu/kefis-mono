@@ -36,8 +36,8 @@ Route::get('/index', function () {
 Route::post('products/{product_id}/reduce-inventory', [ProductController::class, 'reduceInventory'])->name('reduceInventory');
 Route::post('products/{product_id}/dispatch', [ProductController::class, 'dispatchProduct'])->name('dispatch');
 Route::get('products', [ProductController::class, 'show'])->name('products');
-Route::post('products', [ProductController::class, 'store'])->name('products');
-Route::post('products/{product_id}', [ProductController::class, 'update']);
+Route::post('products', [ProductController::class, 'store'])->name('createProduct');
+Route::post('products/{product_id}', [ProductController::class, 'update'])->name('updateProduct');
 Route::delete('products/{product_id}', [ProductController::class, 'destroy']);
 
 Route::post('store_products/{store_product}/reduce-inventory', [StoreProductController::class, 'reduceInventory'])->name('reduce-inventory');

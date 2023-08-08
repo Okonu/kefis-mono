@@ -6,7 +6,7 @@
     <p class="mb-4">This table shows the products in the warehouse, one can dispatch inventory to the store by clicking the button "Dispatch".</p>
     
     <div class="mb-3">
-        <a href="{{ route('createProduct') }}" class="btn btn-success">Add New Product</a>
+        <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addProductModal">Add New Product</a>
     </div>
 
     <!-- Success Message -->
@@ -40,78 +40,99 @@
         </div>
     </div>
 
-    <!-- Edit Product Modal -->
-<div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+    <!-- Add New Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="addProductForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input type="text" class="form-control" id="productName" name="productName">
+                        </div>
+                        <div class="form-group">
+                            <label for="productInventory">Inventory</label>
+                            <input type="text" class="form-control" id="productInventory" name="productInventory">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </div>
+                </form>
             </div>
-            <form id="editProductForm" >
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="editName">Product Name</label>
-                        <input type="text" class="form-control" id="editName" name="editName">
-                    </div>
-                    <div class="form-group">
-                        <label for="editInventory">Inventory</label>
-                        <input type="text" class="form-control" id="editInventory" name="editInventory">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="editProductForm" >
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="editName">Product Name</label>
+                            <input type="text" class="form-control" id="editName" name="editName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editInventory">Inventory</label>
+                            <input type="text" class="form-control" id="editInventory" name="editInventory">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Delete Product Modal -->
-<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteProductModalLabel">Confirm Deletion</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-
-
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete this product?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+    <div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProductModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this product?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-
-    
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const productsTable = document.getElementById('productsTable');
         const successMessage = document.getElementById('successMessage');
-
-        // Delete Product Modal
         const deleteProductModal = document.getElementById('deleteProductModal');
         const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-
-             // Edit Product Modal
         const editProductModal = document.getElementById('editProductModal');
         const editProductForm = document.getElementById('editProductForm');
         const editNameInput = document.getElementById('editName');
         const editInventoryInput = document.getElementById('editInventory');
+        const addProductForm = document.getElementById('addProductForm');
 
         async function updateProductsTable() {
             try {
@@ -124,10 +145,11 @@
         }
 
         function populateProductsTable(products) {
-            productsTable.innerHTML = '';
+            const tbody = productsTable.querySelector('tbody');
+            tbody.innerHTML = '';
             products.forEach(product => {
                 if (product.id && product.name && product.inventory && product.fulfilledStatus && product.orderNumber) {
-                    const row = productsTable.insertRow();
+                    const row = document.createElement('tr');
                     row.setAttribute('data-product-id', product.id);
                     row.innerHTML = `
                         <td>${product.name}</td>
@@ -140,6 +162,7 @@
                             <button class="btn btn-danger delete-button" data-product-id="${product.id}">Delete</button>
                         </td>
                     `;
+                    tbody.appendChild(row);
                 } else {
                     console.error('Product data is missing required properties:', product);
                 }
@@ -150,7 +173,7 @@
         }
 
         function attachDispatchEventListeners() {
-            const dispatchButtons = document.querySelectorAll('.dispatch-button');
+            const dispatchButtons = productsTable.querySelectorAll('.dispatch-button');
             dispatchButtons.forEach(button => {
                 button.addEventListener('click', handleDispatchButtonClick);
             });
@@ -178,7 +201,7 @@
 
                 successMessage.classList.remove('d-none');
 
-                const fulfilledStatusCell = document.querySelector(`tr[data-product-id="${productID}"] td[data-fulfilled-status]`);
+                const fulfilledStatusCell = productsTable.querySelector(`tr[data-product-id="${productID}"] td[data-fulfilled-status]`);
                 if (fulfilledStatusCell) {
                     if (fulfilledStatusCell.innerText === 'Unfulfilled') {
                         fulfilledStatusCell.innerText = 'Fulfilled';
@@ -190,6 +213,36 @@
                 console.error('Error dispatching product:', error);
             }
         }
+
+        addProductForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const productName = document.getElementById('productName').value;
+        const productInventory = document.getElementById('productInventory').value;
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        try {
+            const response = await fetch('/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: JSON.stringify({
+                    name: productName,
+                    inventory: productInventory,
+                }),
+            });
+
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+
+
+            $('#addProductModal').modal('hide');
+        } catch (error) {
+            console.error('Error adding product:', error);
+        }
+    });
 
         function deleteProduct(productID) {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -211,29 +264,32 @@
             });
         }
 
-        function handleEditFormSubmit(productID) {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const formData = new FormData(editProductForm);
+        async function handleEditFormSubmit(productID) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const formData = new FormData(editProductForm);
 
-    fetch(`/products/${productID}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': token,
-        },
-        body: formData,
-    })
-    .then(response => response.json())  
-.then(data => {
-    console.log('Server response:', data); 
-    updateProductsTable();
-    $(editProductModal).modal('hide');
-})
+            try {
+                const response = await fetch(`/products/${productID}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: formData,
+                });
 
-}
+                const responseData = await response.json();
+                console.log('Response data:', responseData);
+
+                // updateProductsTable();
+                // $(editProductModal).modal('hide');
+            } catch (error) {
+                console.error('Error submitting form:', error);
+            }
+        }
 
 
         function findProductByID(productID) {
-            const products = document.querySelectorAll('#productsTable tbody tr');
+            const products = productsTable.querySelectorAll('tbody tr');
             for (const product of products) {
                 if (product.getAttribute('data-product-id') === productID) {
                     const name = product.querySelector('td:nth-child(1)').innerText;
@@ -245,41 +301,44 @@
         }
 
         function attachEditEventListeners() {
-            const editButtons = document.querySelectorAll('.edit-button');
+            const editButtons = productsTable.querySelectorAll('.edit-button');
             editButtons.forEach(button => {
                 button.addEventListener('click', handleEditButtonClick);
             });
         }
 
         function handleEditButtonClick(event) {
-    const productID = event.currentTarget.getAttribute('data-product-id');
-    const product = findProductByID(productID);
-    if (product) {
-        editNameInput.value = product.name;
-        editInventoryInput.value = product.inventory;
-        // Update the form action with the correct product ID
-        editProductForm.action = `/products/${productID}`;
-        editProductForm.addEventListener('submit', e => {
-            e.preventDefault();
-            handleEditFormSubmit(productID);
-        });
-        $(editProductModal).modal('show');
-    }
-}
-
-
+            const productID = event.currentTarget.getAttribute('data-product-id');
+            const product = findProductByID(productID);
+            if (product) {
+                editNameInput.value = product.name;
+                editInventoryInput.value = product.inventory;
+                editProductForm.action = `/products/${productID}`;
+                editProductForm.removeEventListener('submit', handleEditFormSubmit);
+                editProductForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    handleEditFormSubmit(productID);
+                });
+                $(editProductModal).modal('show');
+            }
+        }
 
         function handleDeleteButtonClick(event) {
             const productID = event.currentTarget.getAttribute('data-product-id');
             $(deleteProductModal).modal('show');
-            confirmDeleteButton.addEventListener('click', () => {
+            
+            function deleteProductHandler() {
                 deleteProduct(productID);
-            });
+            }
+            
+            confirmDeleteButton.removeEventListener('click', deleteProductHandler);
+            confirmDeleteButton.addEventListener('click', deleteProductHandler);
         }
 
         function attachDeleteEventListeners() {
-            const deleteButtons = document.querySelectorAll('.delete-button');
+            const deleteButtons = productsTable.querySelectorAll('.delete-button');
             deleteButtons.forEach(button => {
+                button.removeEventListener('click', handleDeleteButtonClick);
                 button.addEventListener('click', handleDeleteButtonClick);
             });
         }
@@ -291,5 +350,4 @@
         updateProductsTable();
     });
 </script>
-
 @endsection

@@ -128,6 +128,8 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const storeProductsTable = document.getElementById('storeProductsTable');
+
+        // Delete Product Modal
         const deleteProductModal = document.getElementById('deleteProductModal');
         const confirmDeleteButton = document.getElementById('confirmDeleteButton');
     
@@ -218,27 +220,62 @@
         //     await deleteProduct(productID);
         // });
 
-        async function deleteProduct(productID) {
-            try {
-                const response = await fetch(`/store_products/${productID}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    console.log(data.message);
-                    $('#deleteProductModal').modal('hide');
-                    removeProductFromTable(productID); 
-                } else {
-                    console.error('Failed to delete product:', data.message);
-                }
-            } catch (error) {
+        function deleteProduct(productID) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            fetch(`/store_products/${productID}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                updateProductsTable();
+                $(deleteProductModal).modal('hide');
+            })
+            .catch(error => {
                 console.error('Error deleting product:', error);
-            }
+            });
         }
+
+        function handleDeleteButtonClick(event) {
+            const productID = event.currentTarget.getAttribute('data-product-id');
+            $(deleteProductModal).modal('show');
+            confirmDeleteButton.addEventListener('click', () => {
+                deleteProduct(productID);
+            });
+        }
+
+        function attachDeleteEventListeners() {
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', handleDeleteButtonClick);
+            });
+        }
+
+        // async function deleteProduct(productID) {
+        //     try {
+        //         const response = await fetch(`/store_products/${productID}`, {
+        //             method: 'DELETE',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        //             }
+        //         });
+
+        //         const data = await response.json();
+        //         if (data.success) {
+        //             console.log(data.message);
+        //             $('#deleteProductModal').modal('hide');
+        //             removeProductFromTable(productID); 
+        //         } else {
+        //             console.error('Failed to delete product:', data.message);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error deleting product:', error);
+        //     }
+        // }
 
         async function handleSaleButtonClick(productID) {
             try {

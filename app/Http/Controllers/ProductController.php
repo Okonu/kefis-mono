@@ -17,6 +17,7 @@ class ProductController extends Controller
     {
         $products = Product::with('fulfilledOrders')->get();
         $product = Product::with('fulfilledOrders')->get();
+
         return view('products.index', compact('products', 'product'));
     }
 

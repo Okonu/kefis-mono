@@ -123,232 +123,232 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const productsTable = document.getElementById('productsTable');
-    const successMessage = document.getElementById('successMessage');
-    const deleteProductModal = document.getElementById('deleteProductModal');
-    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-    const editProductModal = document.getElementById('editProductModal');
-    const editProductForm = document.getElementById('editProductForm');
-    const editNameInput = document.getElementById('editName');
-    const editInventoryInput = document.getElementById('editInventory');
-    const addProductForm = document.getElementById('addProductForm');
+    document.addEventListener('DOMContentLoaded', function () {
+        const productsTable = document.getElementById('productsTable');
+        const successMessage = document.getElementById('successMessage');
+        const deleteProductModal = document.getElementById('deleteProductModal');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        const editProductModal = document.getElementById('editProductModal');
+        const editProductForm = document.getElementById('editProductForm');
+        const editNameInput = document.getElementById('editName');
+        const editInventoryInput = document.getElementById('editInventory');
+        const addProductForm = document.getElementById('addProductForm');
 
-    async function updateProductsTable() {
-        try {
-            const response = await fetch("{{ route('products') }}");
-            const data = await response.json();
-            populateProductsTable(data.products);
-        } catch (error) {
-            console.error('Error updating table:', error);
+        async function updateProductsTable() {
+            try {
+                const response = await fetch("{{ route('products') }}");
+                const data = await response.json();
+                populateProductsTable(data.products);
+            } catch (error) {
+                console.error('Error updating table:', error);
+            }
         }
-    }
 
-    function populateProductsTable(products) {
-        const tbody = productsTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        products.forEach(product => {
-            if (product.id && product.name && product.inventory && product.fulfilledStatus && product.orderNumber) {
-                const row = document.createElement('tr');
-                row.setAttribute('data-product-id', product.id);
-                row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td data-inventory>${product.inventory}</td>
-                    <td data-fulfilled-status>${product.fulfilledStatus}</td>
-                    <td>${product.orderNumber}</td>
-                    <td>
-                        ${product.dispatchButton}
-                        <button class="btn btn-primary edit-button" data-product-id="${product.id}">Edit</button>
-                        <button class="btn btn-danger delete-button" data-product-id="${product.id}">Delete</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            } else {
-                console.error('Product data is missing required properties:', product);
+        function populateProductsTable(products) {
+            const tbody = productsTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            products.forEach(product => {
+                if (product.id && product.name && product.inventory && product.fulfilledStatus && product.orderNumber) {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-product-id', product.id);
+                    row.innerHTML = `
+                        <td>${product.name}</td>
+                        <td data-inventory>${product.inventory}</td>
+                        <td data-fulfilled-status>${product.fulfilledStatus}</td>
+                        <td>${product.orderNumber}</td>
+                        <td>
+                            ${product.dispatchButton}
+                            <button class="btn btn-primary edit-button" data-product-id="${product.id}">Edit</button>
+                            <button class="btn btn-danger delete-button" data-product-id="${product.id}">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                } else {
+                    console.error('Product data is missing required properties:', product);
+                }
+            });
+            attachDispatchEventListeners();
+            attachEditEventListeners();
+            attachDeleteEventListeners();
+        }
+
+        function attachDispatchEventListeners() {
+            const dispatchButtons = productsTable.querySelectorAll('.dispatch-button');
+            dispatchButtons.forEach(button => {
+                button.addEventListener('click', handleDispatchButtonClick);
+            });
+        }
+
+        async function handleDispatchButtonClick(event) {
+            const productID = event.currentTarget.getAttribute('data-product-id');
+
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const response = await fetch(`/products/${productID}/dispatch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network Error');
+                }
+
+                const data = await response.json();
+                console.log(data.message);
+
+                successMessage.classList.remove('d-none');
+
+                const fulfilledStatusCell = productsTable.querySelector(`tr[data-product-id="${productID}"] td[data-fulfilled-status]`);
+                if (fulfilledStatusCell) {
+                    if (fulfilledStatusCell.innerText === 'Unfulfilled') {
+                        fulfilledStatusCell.innerText = 'Fulfilled';
+                    }
+                }
+
+                updateProductsTable();
+            } catch (error) {
+                console.error('Error dispatching product:', error);
+            }
+        }
+
+        addProductForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const productName = document.getElementById('productName').value;
+            const productInventory = document.getElementById('productInventory').value;
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            try {
+                const response = await fetch('/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: JSON.stringify({
+                        name: productName,
+                        inventory: productInventory,
+                    }),
+                });
+
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
+
+                $('#addProductModal').modal('hide');
+                updateProductsTable();
+            } catch (error) {
+                console.error('Error adding product:', error);
             }
         });
-        attachDispatchEventListeners();
-        attachEditEventListeners();
-        attachDeleteEventListeners();
-    }
 
-    function attachDispatchEventListeners() {
-        const dispatchButtons = productsTable.querySelectorAll('.dispatch-button');
-        dispatchButtons.forEach(button => {
-            button.addEventListener('click', handleDispatchButtonClick);
-        });
-    }
-
-    async function handleDispatchButtonClick(event) {
-        const productID = event.currentTarget.getAttribute('data-product-id');
-
-        try {
+        function deleteProduct(productID) {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const response = await fetch(`/products/${productID}/dispatch`, {
-                method: 'POST',
+
+            fetch(`/products/${productID}`, {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': token,
                 },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                updateProductsTable();
+                $(deleteProductModal).modal('hide');
+            })
+            .catch(error => {
+                console.error('Error deleting product:', error);
             });
+        }
 
-            if (!response.ok) {
-                throw new Error('Network Error');
+        function handleDeleteButtonClick(event) {
+            const productID = event.currentTarget.getAttribute('data-product-id');
+            $(deleteProductModal).modal('show');
+
+            function deleteProductHandler() {
+                deleteProduct(productID);
             }
 
-            const data = await response.json();
-            console.log(data.message);
+            confirmDeleteButton.removeEventListener('click', deleteProductHandler);
+            confirmDeleteButton.addEventListener('click', deleteProductHandler);
+        }
 
-            successMessage.classList.remove('d-none');
+        function attachDeleteEventListeners() {
+            const deleteButtons = productsTable.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.removeEventListener('click', handleDeleteButtonClick);
+                button.addEventListener('click', handleDeleteButtonClick);
+            });
+        }
 
-            const fulfilledStatusCell = productsTable.querySelector(`tr[data-product-id="${productID}"] td[data-fulfilled-status]`);
-            if (fulfilledStatusCell) {
-                if (fulfilledStatusCell.innerText === 'Unfulfilled') {
-                    fulfilledStatusCell.innerText = 'Fulfilled';
+        function findProductByID(productID) {
+            const products = productsTable.querySelectorAll('tbody tr');
+            for (const product of products) {
+                if (product.getAttribute('data-product-id') === productID) {
+                    const name = product.querySelector('td:nth-child(1)').innerText;
+                    const inventory = product.querySelector('td[data-inventory]').innerText;
+                    return { name, inventory };
                 }
             }
-
-            updateProductsTable();
-        } catch (error) {
-            console.error('Error dispatching product:', error);
+            return null;
         }
-    }
 
-    addProductForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const productName = document.getElementById('productName').value;
-        const productInventory = document.getElementById('productInventory').value;
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        try {
-            const response = await fetch('/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token,
-                },
-                body: JSON.stringify({
-                    name: productName,
-                    inventory: productInventory,
-                }),
+        function attachEditEventListeners() {
+            const editButtons = productsTable.querySelectorAll('.edit-button');
+            editButtons.forEach(button => {
+                button.addEventListener('click', handleEditButtonClick);
             });
-
-            const responseData = await response.json();
-            console.log('Server response:', responseData);
-
-            $('#addProductModal').modal('hide');
-            updateProductsTable();
-        } catch (error) {
-            console.error('Error adding product:', error);
-        }
-    });
-
-    function deleteProduct(productID) {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        fetch(`/products/${productID}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': token,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message);
-            updateProductsTable();
-            $(deleteProductModal).modal('hide');
-        })
-        .catch(error => {
-            console.error('Error deleting product:', error);
-        });
-    }
-
-    function handleDeleteButtonClick(event) {
-        const productID = event.currentTarget.getAttribute('data-product-id');
-        $(deleteProductModal).modal('show');
-
-        function deleteProductHandler() {
-            deleteProduct(productID);
         }
 
-        confirmDeleteButton.removeEventListener('click', deleteProductHandler);
-        confirmDeleteButton.addEventListener('click', deleteProductHandler);
-    }
-
-    function attachDeleteEventListeners() {
-        const deleteButtons = productsTable.querySelectorAll('.delete-button');
-        deleteButtons.forEach(button => {
-            button.removeEventListener('click', handleDeleteButtonClick);
-            button.addEventListener('click', handleDeleteButtonClick);
-        });
-    }
-
-    function findProductByID(productID) {
-        const products = productsTable.querySelectorAll('tbody tr');
-        for (const product of products) {
-            if (product.getAttribute('data-product-id') === productID) {
-                const name = product.querySelector('td:nth-child(1)').innerText;
-                const inventory = product.querySelector('td[data-inventory]').innerText;
-                return { name, inventory };
+        function handleEditButtonClick(event) {
+            const productID = event.currentTarget.getAttribute('data-product-id');
+            const product = findProductByID(productID);
+            if (product) {
+                editNameInput.value = product.name;
+                editInventoryInput.value = product.inventory;
+                editProductForm.action = `/products/${productID}`;
+                editProductForm.removeEventListener('submit', handleEditFormSubmit);
+                editProductForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    handleEditFormSubmit(productID);
+                });
+                $(editProductModal).modal('show');
             }
         }
-        return null;
-    }
 
-    function attachEditEventListeners() {
-        const editButtons = productsTable.querySelectorAll('.edit-button');
-        editButtons.forEach(button => {
-            button.addEventListener('click', handleEditButtonClick);
+        async function handleEditFormSubmit(productID) {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const formData = new FormData(editProductForm);
+
+            try {
+                const response = await fetch(`/products/${productID}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: formData,
+                });
+
+                const responseData = await response.json();
+                console.log('Server response:', responseData);
+
+                $(editProductModal).modal('hide');
+                updateProductsTable();
+            } catch (error) {
+                console.error('Error editing product:', error);
+            }
+        }
+
+        successMessage.addEventListener('click', () => {
+            successMessage.classList.add('d-none');
         });
-    }
 
-    function handleEditButtonClick(event) {
-        const productID = event.currentTarget.getAttribute('data-product-id');
-        const product = findProductByID(productID);
-        if (product) {
-            editNameInput.value = product.name;
-            editInventoryInput.value = product.inventory;
-            editProductForm.action = `/products/${productID}`;
-            editProductForm.removeEventListener('submit', handleEditFormSubmit);
-            editProductForm.addEventListener('submit', e => {
-                e.preventDefault();
-                handleEditFormSubmit(productID);
-            });
-            $(editProductModal).modal('show');
-        }
-    }
-
-    async function handleEditFormSubmit(productID) {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const formData = new FormData(editProductForm);
-
-        try {
-            const response = await fetch(`/products/${productID}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                },
-                body: formData,
-            });
-
-            const responseData = await response.json();
-            console.log('Server response:', responseData);
-
-            updateProductsTable();
-            $(editProductModal).modal('hide');
-        } catch (error) {
-            console.error('Error editing product:', error);
-        }
-    }
-
-    successMessage.addEventListener('click', () => {
-        successMessage.classList.add('d-none');
+        updateProductsTable();
     });
-
-    updateProductsTable();
-});
-
 </script>
+
 
 @endsection

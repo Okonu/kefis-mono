@@ -222,9 +222,9 @@
         },
         body: formData,
     })
-    .then(response => response.json())  // Parse the response as JSON
+    .then(response => response.json())  
 .then(data => {
-    console.log('Server response:', data);  // Log the response for debugging
+    console.log('Server response:', data); 
     updateProductsTable();
     $(editProductModal).modal('hide');
 })
